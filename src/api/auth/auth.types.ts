@@ -6,7 +6,8 @@ export interface LoginPayload {
 export interface RegisterPayload {
     email : string,
     username? : string,
-    password : string
+    password : string,
+    OTPCode : number
 }
 
 export interface AuthResponse {
