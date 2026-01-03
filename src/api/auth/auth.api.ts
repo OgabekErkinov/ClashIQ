@@ -7,8 +7,13 @@ export const loginApi = async ( payload : LoginPayload ) => {
     return data
 }
 
-export const authApi = async ( payload : RegisterPayload ) => {
-    const { data } = await api.post('api/auth/register', payload)
+export const sendOTPApi = async ( payload : string ) => {
+    const { data } = await api.post('api/auth/sendOTP', payload)
+    return data
+}
+
+export const verifyAndRegistr = async ( payload : RegisterPayload) => {
+    const { data } = await api.post('api/auth/verifyAndRegistr')
     return data
 }
 
