@@ -5,18 +5,21 @@ type UserRole = "super_admin" | "admin" | "user";
 
 //user interface
 interface UserData {
+  id : string,
   username: string;
   email: string;
   role: UserRole;
-  won: number;
+  wins: number;
   duels: number;
 }
 
 //authstate
-interface AuthState extends UserData {
+interface AuthState {
+  user : UserData | null;
   accessToken: string | null;
   isAuth: boolean;
   setAuth: (token: string, user?: Partial<UserData>) => void;
+  updateStates : (duels : number, wins : number) => void;
   logout: () => void;
 }
 
@@ -25,13 +28,9 @@ interface AuthState extends UserData {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
+      user : null,
       accessToken: null,
       isAuth: false,
-      username: "",
-      email: "",
-      role: "user",
-      won: 0,
-      duels: 0,
 
       setAuth: (token, user) => {
         set({
@@ -41,17 +40,18 @@ export const useAuthStore = create<AuthState>()(
         });
       },
 
+      updateStates(duels, wins) {
+        set((state) => ({
+          user : state.user ? {...state.user, duels, wins} : null,
+        }))
+      },
+
       logout: () => {
         set({
+          user : null,
           accessToken: null,
           isAuth: false,
-          username: "",
-          email: "",
-          role: "user",
-          won: 0,
-          duels: 0,
         });
-        localStorage.removeItem("auth-storage"); 
       },
     }),
     {
