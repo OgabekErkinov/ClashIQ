@@ -1,11 +1,10 @@
 import { useAuthStore } from "@/store/auth.store";
 import axios from "axios";
-import { config } from "process";
 
 //matching baseurl by creating api with axios
 const api = axios.create({
     baseURL : process.env.NEXT_PUBLIC_API_URL,
-    withCredentials: true
+    withCredentials: false
 });
 
 //api interceptors
