@@ -3,6 +3,10 @@ export interface LoginPayload {
     password : string
 }
 
+export interface OTPPayload {
+    email : string
+}
+
 export interface RegisterPayload {
     email : string,
     username? : string,
