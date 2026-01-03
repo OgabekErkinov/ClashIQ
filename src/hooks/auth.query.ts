@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { loginApi, authApi, logoutApi } from "@/api/auth/auth.api";
+import { loginApi, logoutApi, sendOTPApi, verifyAndRegistr } from "@/api/auth/auth.api";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
+import { RegisterPayload } from "@/api/auth/auth.types";
 
 export const useAuthActions = () => {
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -9,42 +10,48 @@ export const useAuthActions = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-// LOGIN HOOK
-// /////////////////////////////////////////////////////////
+// login hook
 const loginMutation = useMutation({
   mutationFn: loginApi,
   onSuccess: (data) => {
     setAuth(data?.accessToken, data?.user); 
 
-    const userRole = data?.user?.role || data?.role;
+    const role = data?.user?.role;
 
-    if (userRole === 'admin' || userRole === 'super_admin') {
-      router.push("/dashboard");
+    if (role === 'user') {
+      router.push("/user");
     } else {
-      router.push("/");
+      router.push("/admin");
     }
   },
   onError: (error: any) => {
-    console.error("Kirishda xatolik:", error);
+    console.error("Error to enter:", error);
   }
 });
 
-// ////////////////////////////////////////////////////////////////////
-
-  // REGISTER (yoki umumiy auth) HOOK
-// ////////////////////////////////////////////////////////////////////
-  const authMutation = useMutation({
-    mutationFn: authApi,
-    onSuccess: (data) => {
-      if (data?.accessToken) {
-        setAuth(data.accessToken, data?.user);
-        router.push("/dashboard");
-      }
-    },
+  // OTP hook : to get verification code
+  const OTPMutation = useMutation({
+    mutationFn: (email : string) => sendOTPApi(email),
   });
 
-  // LOGOUT HOOK
-// ////////////////////////////////////////////////////////////////////
+  //Registr hook
+  const verifyAndRegistrMutation = useMutation({
+    mutationFn : (payload : RegisterPayload) => verifyAndRegistr(payload),
+    onSuccess : (data) => {
+      setAuth(data?.accessToken, data?.user)
+      if(data?.user?.role === 'user'){
+        router.push('/user')
+      }else{
+        router.push('/admin')
+      }
+    },
+    onError : (error : any) => {
+      console.error(`Erro registration : ${error}`)
+    }
+  })
+
+
+  // logout hook
   const logoutMutation = useMutation({
     mutationFn: logoutApi,
     onSuccess: () => {
@@ -56,7 +63,8 @@ const loginMutation = useMutation({
 
   return {
     login: loginMutation,
-    auth: authMutation,
+    sendOTP : OTPMutation,
+    register : verifyAndRegistrMutation,
     logout: logoutMutation,
   };
 };
