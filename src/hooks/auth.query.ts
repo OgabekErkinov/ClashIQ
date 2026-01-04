@@ -55,16 +55,16 @@ const loginMutation = useMutation({
   const logoutMutation = useMutation({
     mutationFn: logoutApi,
     onSuccess: () => {
-      logOutStore(); // Store-ni tozalash
-      queryClient.clear(); // TanStack Query keshini to'liq tozalash (xavfsizlik uchun)
-      router.push("/login"); // Login sahifasiga qaytarish
+      logOutStore(); 
+      queryClient.resetQueries();
+      router.push("/login");
     },
   });
 
   return {
     login: loginMutation,
     sendOTP : OTPMutation,
-    register : verifyAndRegistrMutation,
+    registr : verifyAndRegistrMutation,
     logout: logoutMutation,
   };
 };
