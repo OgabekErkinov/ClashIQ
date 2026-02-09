@@ -1,10 +1,9 @@
 "use client"
-import { CustomCard } from "@/app/auth/login/components/CustomCard";
+import { CustomCard } from "@/app/components/CustomCard";
 import { Lock, Mail, Trophy, Users, Zap } from "lucide-react";
-import { CustomInput } from "@/app/auth/login/components/CustomInput";
-import { CustomButton } from "@/app/auth/login/components/CustomButton";
-import { useState } from "react";
-import { LoginPageProps } from "@/props/pageProps/props";
+import { CustomInput } from "@/app/components/CustomInput";
+import { CustomButton } from "@/app/components/CustomButton";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { FormFields, loginSchema } from "./schema";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -12,36 +11,55 @@ import { useAuthActions } from "@/hooks/auth.query";
 
 
 export default function Login() {
+  //hooks
+  const { login, registr } = useAuthActions()
 
-    const [isRegister, setIsRegister] = useState(false);
-    const [error, setError] = useState('')
-    const { login, auth } = useAuthActions()
+  //states
+  const [isRegister, setIsRegister] = useState<boolean>(false);
+  const [isOTP, setIsOTP] = useState<boolean>(false)
+  const [serverError, setServerError] = useState<string>('')
+  const [otpTimer, setOtpTimer] = useState(180)
+  const [isResend, setIsResend] = useState(false);
 
-  const { register, watch, handleSubmit, formState : { errors }} = useForm<FormFields>({ resolver : yupResolver(loginSchema)})
+  //timer
+   useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isOTP && otpTimer > 0) {
+      interval = setInterval(() => {
+      setOtpTimer((prev) => prev - 1);
+    }, 1000);
+  } else if (otpTimer === 0) {
+    setIsResend(true); //if time is over
+  }
+
+  return () => clearInterval(interval); //unmount
+}, [isOTP, otpTimer]);
+
+
+  const { register, handleSubmit, formState : { errors }} = useForm<FormFields>({ resolver : yupResolver(loginSchema)})
   const onSubmit: SubmitHandler<FormFields> = (data) => {
   if (isRegister) {
+        
     // register
-    auth.mutate({
-      email : data?.email,
-      password : data?.password
-    })
+    registr.mutate(data, {
+      onError : (error : any) => {
+        setServerError(error?.response?.data?.message)
+      }
+    }) 
   } else {
-    login.mutate({
-      email: data?.email,
-      password: data?.password,
-    });
+    login.mutate(data, {
+      onError : (error : any) => {
+        setServerError(error?.response?.data?.message)
+      }
+    })
   }
-  console.log('mydata', data)
-  
 };
 
 // Holatlarni hisoblash
-  const isPending = isRegister ? auth.isPending : login.isPending;
-  // Serverdan kelgan xatolik obyekti
-  const serverError = isRegister ? auth.error : login.error;
+  const isPending = isRegister ? registr.isPending : login.isPending;
   return (
     <div className="full-size">
-        <div className="full-size full-center bg-accent-500  p-4">
+        <div className="full-size full-center bg-accent-500 p-4">
          <div className="w-full max-w-6xl grid md:grid-cols-2 gap-8 items-center">
            {/* Left side */}
            <div className="hidden md:block text-white">
@@ -84,7 +102,7 @@ export default function Login() {
            </div>
 
            {/* Right side - Login Form */}
-           <CustomCard className="max-w-md w-full mx-auto">
+           <CustomCard className="bg-white max-w-md w-full mx-auto">
           <div className="text-center mb-8">
             <h2 className="mb-2">{isRegister ? 'Create Account' : 'Welcome Back'}</h2>
             <p className="text-gray-600">
@@ -99,20 +117,37 @@ export default function Login() {
               type="email"
               placeholder="your@email.com"
               icon={<Mail size={20} />}
+              // disabled={isOTP} //to use OTP code one day
               error={errors?.email?.message}
             />
 
+            {/* password */}
             <CustomInput
-              {...register("password")}
-              label="Password"
-              type="password"
-              placeholder="••••••••"
+            {...register("password")}
+            label="Password"
+            type="password"
+            placeholder="••••••••"
+            icon={<Lock size={20} />}
+            error={errors?.password?.message}
+            /> 
+            
+            {/* if otp code come  */}
+            {/* {isRegister && isOTP && (
+              <CustomInput
+              {...register("code")}
+              label={`Check your email — ${Math.floor(otpTimer / 60)}:${(otpTimer % 60).toString().padStart(2, '0')}`}
+              type="text"
+              placeholder="000000"
               icon={<Lock size={20} />}
-              error={errors?.password?.message}
-            />
+              error={errors?.code?.message}
+              />
+              )} */} 
 
+              
+
+            {/* if otp is sended repassword is shown : it is rejected at now*/}
             {
-              isRegister &&
+              isRegister && 
               <CustomInput
               {...register("rePassword")}
               label="Confirm password"
@@ -123,9 +158,9 @@ export default function Login() {
             />
             }
 
-            {errors && (
+            {serverError && (
               <div className="p-3 bg-error-50 border border-error-200 rounded-xl text-error-600">
-                {errors.message}
+                {serverError}
               </div>
             )}
 
@@ -158,6 +193,7 @@ export default function Login() {
               </div>
             </div>
 
+             {/* button which to continue as a guest */}
             <CustomButton
               type="button"
               variant="outline"

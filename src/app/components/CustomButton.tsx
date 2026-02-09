@@ -17,7 +17,7 @@ export function CustomButton({
   disabled,
   ...props
 }: CustomButtonProps) {
-  const baseStyles = 'inline-flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseStyles = 'cursor-pointer inline-flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variants = {
     primary: 'bg-primary-600 hover:bg-primary-700 text-white shadow-md hover:shadow-lg',

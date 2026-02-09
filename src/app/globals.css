@@ -68,7 +68,28 @@
 
   .full-size {
     @apply w-full h-full min-h-screen
-  }
+  };
+
+  .card-gradient[data-variant="primary"] {
+    @apply bg-linear-to-br from-blue-600 to-blue-700 text-white;
+  };
+
+  .card-gradient[data-variant="accent"] {
+    @apply bg-linear-to-br from-purple-600 to-purple-700 text-white;
+  };
+  
+  .card-gradient[data-variant="success"] {
+    @apply bg-linear-to-br from-green-600 to-green-700 text-white;
+  };
+
+  .card-gradient[data-variant="warning"] {
+    @apply bg-linear-to-br from-orange-600 to-orange-700 text-white;
+  };
+
+  .card-gradient[data-variant="pri-accent"] {
+    @apply bg-linear-to-br from-primary-50 to-accent-50 text-white;
+  };
+
  }
 
 

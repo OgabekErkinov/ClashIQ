@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { loginApi, logoutApi, sendOTPApi, verifyAndRegistr } from "@/api/auth/auth.api";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
-import { RegisterPayload } from "@/api/auth/auth.types";
+import { RegisterPayload } from "@/api/auth/auth.interfaces";
 
 export const useAuthActions = () => {
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -14,14 +14,14 @@ export const useAuthActions = () => {
 const loginMutation = useMutation({
   mutationFn: loginApi,
   onSuccess: (data) => {
-    setAuth(data?.accessToken, data?.user); 
+    setAuth(data?.accessToken, data?.user);
 
     const role = data?.user?.role;
 
     if (role === 'user') {
       router.push("/user");
     } else {
-      router.push("/admin");
+      router.push("/admin/dashboard");
     }
   },
   onError: (error: any) => {
@@ -42,11 +42,11 @@ const loginMutation = useMutation({
       if(data?.user?.role === 'user'){
         router.push('/user')
       }else{
-        router.push('/admin')
+        router.push('/admin/dashboard')
       }
     },
     onError : (error : any) => {
-      console.error(`Erro registration : ${error}`)
+      console.error(`Error registration : ${error}`)
     }
   })
 
@@ -57,7 +57,7 @@ const loginMutation = useMutation({
     onSuccess: () => {
       logOutStore(); 
       queryClient.resetQueries();
-      router.push("/login");
+      router.push("/");
     },
   });
 

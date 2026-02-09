@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { LoginPayload, RegisterPayload } from "./auth.types";
+import { LoginPayload, RegisterPayload } from "./auth.interfaces";
 
 
 export const loginApi = async ( payload : LoginPayload ) => {
@@ -7,8 +7,8 @@ export const loginApi = async ( payload : LoginPayload ) => {
     return data
 }
 
-export const sendOTPApi = async ( payload : string ) => {
-    const { data } = await api.post('api/auth/sendOTP', payload)
+export const sendOTPApi = async ( email : string ) => {
+    const { data } = await api.post('api/auth/sendOTP', { email })
     return data
 }
 

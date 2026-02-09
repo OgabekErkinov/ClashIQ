@@ -18,7 +18,7 @@ interface AuthState {
   user : UserData | null;
   accessToken: string | null;
   isAuth: boolean;
-  setAuth: (token: string, user?: Partial<UserData>) => void;
+  setAuth: (token: string, user?: UserData) => void;
   updateStates : (duels : number, wins : number) => void;
   logout: () => void;
 }
@@ -36,7 +36,7 @@ export const useAuthStore = create<AuthState>()(
         set({
           accessToken: token,
           isAuth: true,
-          ...user, 
+          user : user ?? null, 
         });
       },
 
